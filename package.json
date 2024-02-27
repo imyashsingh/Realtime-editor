@@ -1,0 +1,12 @@
+{
+    "name": "realtime-editor",
+    "version": "1.0.0",
+    "description": "realtime code editor",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "start": "node server/server.js"
+    },
+    "author": "Yash Singh",
+    "license": "ISC"
+}
