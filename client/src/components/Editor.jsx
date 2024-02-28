@@ -79,14 +79,14 @@ const Editor = () => {
 
     return (
         <div className="bg-black sm:flex-1 h-full">
-            <div className="h-[6%] flex justify-end ">
+            <div className="h-[6%] flex justify-end px-2 ">
                 <select
                     id="languages"
                     name="languages"
                     autoComplete="languages-name"
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="block text-white bg-gray-950 w-2/12 mx-2 px-3 rounded-md border-0 py-1 border-gray-900  shadow-sm ring-1 ring-inset ring-gray-900 focus:ring-2 focus:ring-inset  sm:max-w-xs sm:text-sm sm:leading-6"
+                    className="block text-white bg-gray-950 w-60  mx-2 px-3 rounded-md border-0 py-1 border-gray-900  shadow-sm ring-1 ring-inset ring-gray-900 focus:ring-2 focus:ring-inset  sm:max-w-xs sm:text-sm sm:leading-6"
                 >
                     {languages.map((lang) => (
                         <option key={lang} value={lang}>
@@ -100,7 +100,7 @@ const Editor = () => {
                     autoComplete="themes-name"
                     value={theme}
                     onChange={(e) => setTheme(e.target.value)}
-                    className="block text-white bg-gray-950 w-2/12 mx-2 px-3 rounded-md border-0 py-1 border-gray-900  shadow-sm ring-1 ring-inset ring-gray-900 focus:ring-2 focus:ring-inset sm:max-w-xs sm:text-sm sm:leading-6"
+                    className="block text-white bg-gray-950 w-60  mx-2 px-3 rounded-md border-0 py-1 border-gray-900  shadow-sm ring-1 ring-inset ring-gray-900 focus:ring-2 focus:ring-inset sm:max-w-xs sm:text-sm sm:leading-6"
                 >
                     {themes.map((them) => (
                         <option key={them} value={them}>
