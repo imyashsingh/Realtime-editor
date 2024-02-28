@@ -1,13 +1,14 @@
 import { useState } from "react";
 import Avatar from "react-avatar";
+import Editor from "../components/Editor";
 
 const EditorPage = () => {
     const [clients, setClients] = useState([
         { socketId: 1, username: "yad ghh" },
         { socketId: 2, username: "yad ghh" },
         { socketId: 3, username: "yad ghh" },
-        { socketId: 3, username: "yad ghh" },
-        { socketId: 3, username: "yad ghh" },
+        { socketId: 4, username: "yad ghh" },
+        { socketId: 5, username: "yadghh" },
     ]);
     return (
         <div className=" w-screen h-screen text-white sm:flex">
@@ -35,9 +36,7 @@ const EditorPage = () => {
                     <button className="rounded p-2 bg-red-600">Leave</button>
                 </div>
             </div>
-            <div className="bg-gray-900 sm:flex-1 p-3 h-full">
-                editor goes here
-            </div>
+            <Editor />
         </div>
     );
 };
