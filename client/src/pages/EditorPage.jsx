@@ -2,37 +2,87 @@ import { useEffect, useRef, useState } from "react";
 import Avatar from "react-avatar";
 import Editor from "../components/Editor";
 import { initSocket } from "../socket";
+import toast from "react-hot-toast";
 import { ACTIONS } from "../action";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 const EditorPage = () => {
     const socketRef = useRef(null);
+    const codeRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
+    const { roomId } = useParams();
+    const [clients, setClients] = useState([]);
 
     useEffect(() => {
         const init = async () => {
             const username = location.state?.username;
-            if (!username) {
+            if (!username || !roomId) {
                 navigate("/");
                 return;
             }
+
             socketRef.current = await initSocket();
-            // socketRef.current.emit(ACTIONS.JOIN, {
-            //     roomId,
-            //     username,
-            // });
+            socketRef.current.emit(ACTIONS.JOIN, {
+                roomId,
+                username,
+            });
+
+            // Listening for joined event
+            socketRef.current.on(
+                ACTIONS.JOINED,
+                ({ clients, username, socketId }) => {
+                    if (username !== location.state?.username) {
+                        toast.success(`${username} joined the room.`);
+                    }
+                    setClients(clients);
+
+                    socketRef.current.emit(ACTIONS.SYNC_CODE, {
+                        code: codeRef.current,
+                        socketId,
+                    });
+                }
+            );
+
+            // Listening for disconnected
+            socketRef.current.on(
+                ACTIONS.DISCONNECTED,
+                ({ socketId, username }) => {
+                    toast.success(`${username} left the room.`);
+                    setClients((prev) => {
+                        return prev.filter(
+                            (client) => client.socketId !== socketId
+                        );
+                    });
+                }
+            );
         };
         init();
-    }, [navigate, location.state?.username]);
+        return () => {
+            socketRef.current.disconnect();
+            socketRef.current.off(ACTIONS.JOINED);
+            socketRef.current.off(ACTIONS.DISCONNECTED);
+        };
+    }, [navigate, location.state?.username, roomId]);
 
-    const [clients, setClients] = useState([
-        { socketId: 1, username: "yad ghh" },
-        { socketId: 2, username: "yad ghh" },
-        { socketId: 3, username: "yad ghh" },
-        { socketId: 4, username: "yad ghh" },
-        { socketId: 5, username: "yadghh" },
-    ]);
+    const onCodeChange = (code) => {
+        codeRef.current = code;
+    };
+
+    const copyRoomId = async () => {
+        try {
+            await navigator.clipboard.writeText(roomId);
+            toast.success("Room ID has been copied to your clipboard");
+        } catch (err) {
+            toast.error("Could not copy the Room ID");
+            console.error(err);
+        }
+    };
+
+    const leaveRoom = () => {
+        navigate("/");
+    };
+
     return (
         <div className=" w-screen h-screen text-white sm:flex">
             <div className="bg-gray-950 max-h-[50%] sm:w-56 sm:max-h-full p-3 flex flex-col items-center ">
@@ -53,13 +103,25 @@ const EditorPage = () => {
                     ))}
                 </div>
                 <div className="flex flex-col gap-3 w-full py-4 mt-4">
-                    <button className="rounded p-2  bg-green-700 ">
+                    <button
+                        onClick={copyRoomId}
+                        className="rounded p-2  bg-green-700 "
+                    >
                         Copy Room Id
                     </button>
-                    <button className="rounded p-2 bg-red-600">Leave</button>
+                    <button
+                        onClick={leaveRoom}
+                        className="rounded p-2 bg-red-600"
+                    >
+                        Leave
+                    </button>
                 </div>
             </div>
-            <Editor />
+            <Editor
+                socketRef={socketRef}
+                roomId={roomId}
+                onCodeChange={onCodeChange}
+            />
         </div>
     );
 };

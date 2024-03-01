@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import EditorTab from "@monaco-editor/react";
+import { ACTIONS } from "../action";
 
-const Editor = () => {
-    const [value, setValue] = useState("console.log('hello world!');");
+const Editor = ({ socketRef, roomId, onCodeChange }) => {
     const [language, setLanguage] = useState("javascript");
     const [theme, setTheme] = useState("vs-dark");
+    const [editorCode, setEditorCode] = useState("");
 
     const languages = [
         "javascript",
@@ -77,6 +78,28 @@ const Editor = () => {
         wrappingIndent: "none",
     };
 
+    useEffect(() => {
+        if (socketRef.current) {
+            socketRef.current.on(ACTIONS.CODE_CHANGE, ({ code }) => {
+                if (code !== null) {
+                    setEditorCode(code);
+                }
+            });
+        }
+
+        return () => {
+            socketRef.current.off(ACTIONS.CODE_CHANGE);
+        };
+    }, [socketRef.current]);
+
+    const handleEditorChange = (value) => {
+        onCodeChange(value);
+        socketRef.current.emit(ACTIONS.CODE_CHANGE, {
+            roomId,
+            code: value,
+        });
+    };
+
     return (
         <div className="bg-black sm:flex-1 h-full">
             <div className="h-[6%] flex justify-end px-2 ">
@@ -116,8 +139,9 @@ const Editor = () => {
                 height="94%"
                 language={language}
                 defaultLanguage={language}
-                defaultValue={value}
-                onChange={(val) => setValue(val)}
+                defaultValue=""
+                value={editorCode}
+                onChange={handleEditorChange}
                 options={options}
             />
         </div>
