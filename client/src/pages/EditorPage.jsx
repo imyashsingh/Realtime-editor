@@ -1,8 +1,31 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Avatar from "react-avatar";
 import Editor from "../components/Editor";
+import { initSocket } from "../socket";
+import { ACTIONS } from "../action";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const EditorPage = () => {
+    const socketRef = useRef(null);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const init = async () => {
+            const username = location.state?.username;
+            if (!username) {
+                navigate("/");
+                return;
+            }
+            socketRef.current = await initSocket();
+            // socketRef.current.emit(ACTIONS.JOIN, {
+            //     roomId,
+            //     username,
+            // });
+        };
+        init();
+    }, [navigate, location.state?.username]);
+
     const [clients, setClients] = useState([
         { socketId: 1, username: "yad ghh" },
         { socketId: 2, username: "yad ghh" },
